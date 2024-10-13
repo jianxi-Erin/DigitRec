@@ -5,70 +5,62 @@ from torchvision.datasets import MNIST
 import matplotlib.pyplot as plt
 from datetime import datetime
 from base_model import Net  # 导入Net模型
+from utils import ModelUtils #导入模型工具类
 
-# 定义数据加载器函数
-def get_data_loader(is_train):
-    to_tensor = transforms.Compose([transforms.ToTensor()])
-    data_set = MNIST("./data_train", is_train, transform=to_tensor, download=True)
-    return DataLoader(data_set, batch_size=15, shuffle=True)
-
-# 定义模型评估函数:为模型打分
-def evaluate(test_data, net):
-    n_correct = 0
-    n_total = 0
-    with torch.no_grad():  # 评估时不需要梯度计算
-        for (x, y) in test_data:
-            # 处理输入并得到输出
-            outputs = net.forward(x.view(-1, 28*28))
-            for i, output in enumerate(outputs):
-                # 获取预测值，并与实际标签比较
-                if torch.argmax(output) == y[i]:
-                    n_correct += 1
-                n_total += 1
-    # 返回准确率
-    return n_correct / n_total
 
 
 
 
 # 如果该文件作为主程序执行，则调用 main 函数
 if __name__ == "__main__":
-    # 加载训练和测试数据
-    train_data = get_data_loader(is_train=True)
-    test_data = get_data_loader(is_train=False)
+    # 1.实例化基础模型
     net = Net()
     
-    # 初始模型的准确率
+    # 2. 加载训练和测试数据
+    train_data = ModelUtils.get_data_loader(True,15)
+    test_data = ModelUtils.get_data_loader(False,15)
     
-    # 定义优化器
+    
+    # 3. 定义模型参数优化器 Adam,lr为参数更新步长(太小会速度慢,太大可能会错过最优参数)
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
     
-    # 训练模型
-    # for epoch in range(2):
-    epoch=0
-    true_rate=evaluate(test_data, net)
+    # 4 .训练模型
     
-    print(f"训练迭代\t{epoch}次\t准确率:{true_rate}")
+    epoch=0 #记录迭代次数
+    true_rate=ModelUtils.evaluate(test_data, net) #计算模型准确率
+    print(f"训练迭代\t{epoch}次\t准确率:{true_rate}") #打印初始迭代次数和准确率
+    #   循环训练
     while True:
         epoch += 1
-        for (x, y) in train_data:
-            net.zero_grad()  # 梯度清零
-            # 前向传播
-            output = net.forward(x.view(-1, 28*28))
-            # 计算损失
-            loss = torch.nn.functional.nll_loss(output, y)
-            # 反向传播
+        for (element, label) in train_data:
+            # 梯度清零:每次执行前向传播和反向传播之前，都需要将模型的梯度清零。否则，PyTorch 会在现有的梯度基础上累加新计算的梯度，影响训练结果。
+            net.zero_grad()  
+
+            # 前向传播会自动调用forward()方法:输入层->隐藏层->输出层,得到预测结果output
+            output = net(element.view(-1, 28*28))
+            
+            # 计算损失:使用负对数似然损失函数(nll_loss)来计算模型的output与label之间的差异（损失值）
+            # 损失函数的值越小，表示模型的预测性能越好。
+            loss = torch.nn.functional.nll_loss(output, label)
+            
+            # 反向传播:通过链式法则计算,指明了如何调整参数以减少损失。
             loss.backward()
-            # 更新参数
+            
+            # 更新参数:使用Adam优化器更新模型的参数，基于前面计算出的梯度对模型进行调整，从而使损失函数值更小。
             optimizer.step()
-        # 每个epoch后打印测试集上的准确率
-        true_rate=evaluate(test_data, net)
+        
+        # 每个epoch后使用测试集计算准确率
+        true_rate=ModelUtils.evaluate(test_data, net)
         print(f"训练迭代\t{epoch}次\t准确率:{true_rate}")
+        
+         # 当准确率高于0.975,保存模型的,退出训练
         if true_rate >= 0.975:
+            
             print("-"*50)
             print("模型已达标,最终准确率:",true_rate)
-            # 保存模型的state_dict
+           
             nowData=datetime.now().strftime("%Y%m%d%H%M%S")
             model_name=f"./model/numbermodel_{epoch}_{true_rate}_{nowData}.pth"
             torch.save(net.state_dict(),model_name)
+            
             break;
