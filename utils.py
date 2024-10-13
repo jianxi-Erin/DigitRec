@@ -54,12 +54,9 @@ class ModelUtils:
                 # 将图像展平为一维向量，并通过模型得到预测结果
                 outputs = net(elements.view(-1, 28*28))
 
-                # 遍历每个输出，比较预测值与真实标签
-                for i, output in enumerate(outputs):
-                    # 如果预测类别与真实标签相同，计入正确数
-                    if torch.argmax(output) == labels[i]:
-                        num_true += 1
-                    num_total += 1  # 处理过一个样本，总数加1
+                predictions = torch.argmax(outputs, dim=1)  # 预测结果
+                num_true += (predictions == labels).sum().item()  # 统计正确预测的数量
+                num_total += labels.size(0)  # 统计总样本数量
         
         # 返回测试集上的准确率
         return num_true / num_total
