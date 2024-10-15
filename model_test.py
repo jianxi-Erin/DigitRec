@@ -14,6 +14,8 @@ test_loader=ModelUtils.get_data_loader(False,50)
 
 # 获取一批测试数据
 images, labels = next(iter(test_loader))
+print("图片张数:",images.size())
+print(images.shape)
 # # 使用模型进行预测
 with torch.no_grad():
     outputs = net(images.view(-1, 28*28))  # 将图片展平
@@ -30,7 +32,7 @@ print("准确率:",true_rate)
 # # 创建子图
 for i in range(50):
     plt.subplot(5,10,i+1)
-    plt.imshow(images[i].view(28,28))
+    plt.imshow(images[i].view(28,28),cmap="gray")
     plt.title(f"{predictions[i].item()}")
     plt.axis('off')
 plt.tight_layout()
