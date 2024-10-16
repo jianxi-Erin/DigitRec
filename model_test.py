@@ -4,6 +4,8 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from base_model import Net  # 导入Net模型
 from utils import ModelUtils
+# 使用自定义模型预测minst数据集(有标签)
+
 # 实例化并加载训练好的模型
 net = Net()
 model_path = './model/numbermodel_7_0.976_20241012203328.pth'
@@ -25,7 +27,7 @@ with torch.no_grad():
     total_samples = labels.size(0)  # 总样本数量
     true_rate = correct_predictions / total_samples  # 当前批次的准确率
 
-print("预测",predictions)
+print("预测:",predictions)
 print("实际:", labels)
 print("准确率:",true_rate)
 

@@ -7,7 +7,7 @@ from datetime import datetime
 from base_model import Net  # 导入Net模型
 from utils import ModelUtils #导入模型工具类
 
-
+# 使用自定义神经网络基础模型通过minst训练集(有标签)训练模型,并通过测试集评估模型准确率\
 
 
 
@@ -17,8 +17,8 @@ if __name__ == "__main__":
     net = Net()
     
     # 2. 加载训练和测试数据
-    train_data = ModelUtils.get_data_loader(True,15)
-    test_data = ModelUtils.get_data_loader(False,15)
+    train_data = ModelUtils.get_data_loader(True,50)
+    test_data = ModelUtils.get_data_loader(False,50)
     
     
     # 3. 定义模型参数优化器 Adam,lr为参数更新步长(太小会速度慢,太大可能会错过最优参数)
