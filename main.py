@@ -32,12 +32,14 @@ test_loader = DataLoader(custom_test_dataset, batch_size=50, shuffle=False)
 # 使用模型进行预测
 epoch=0
 for images, labels in test_loader:
-    print(f"{epoch}批输入Image:", images.size())
-    print(f"{epoch}批输入label:",labels)
+    output = f"第{epoch}批数据"
+    print(f"{output:-^25}")
+    print("输入Image:", images.size())
+    print("输入label:",labels)
     with torch.no_grad():
         outputs = net(images.view(-1, 28 * 28))  # 将图片展平
         predictions = torch.argmax(outputs, dim=1)
-    print(f"{i}批预测输出label:", predictions)
+    print("预测输出label:", predictions)
 
     # 创建子图
     plt.figure(figsize=(10, 5))
