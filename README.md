@@ -49,14 +49,13 @@
 
 ## 安装依赖
 请确保你已安装以下Python库：
-- numpy
 - torch
 - torchvision
 - matplotlib
 
 你可以使用以下命令安装依赖项：
 ```bash
-pip install numpy torch torchvision matplotlib
+pip install -r requirements.txt
 ```
 
 ## 使用方法
